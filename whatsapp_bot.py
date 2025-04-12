@@ -42,7 +42,7 @@ def bot():
         user["current_balance"] += user["topup_amount"]
         user["last_topup"] = now.isoformat()
 
-    if msg.startswith("/setbudget"):
+    if msg.startswith("setbudget"):
         try:
             amount = float(msg.split()[1])
             user["monthly_allocation"] = amount
@@ -52,7 +52,7 @@ def bot():
             response.message(f"✅ Budget set to ${amount:.2f}.")
         except:
             response.message("❌ Please send: /setbudget 1000")
-    elif msg.startswith("/addexpense"):
+    elif msg.startswith("addexpense"):
         try:
             parts = msg.split()
             amount = float(parts[1])
@@ -62,14 +62,14 @@ def bot():
             response.message(f"💸 {description} - ${amount:.2f} added. Remaining: ${user['current_balance']:.2f}")
         except:
             response.message("❌ Usage: /addexpense 50 groceries")
-    elif msg.startswith("/topup"):
+    elif msg.startswith("topup"):
         try:
             amount = float(msg.split()[1])
             user["topup_amount"] = amount
             response.message(f"🔄 Top-up amount set to ${amount:.2f}")
         except:
             response.message("❌ Usage: /topup 1000")
-    elif msg.startswith("/status"):
+    elif msg.startswith("status"):
         response.message(
             f"💼 Budget: ${user['monthly_allocation']:.2f}\n"
             f"💰 Current Balance: ${user['current_balance']:.2f}\n"

@@ -38,21 +38,6 @@ def bot():
     user = users[user_id]
 
     # Monthly top-up logic
-
-    # Handle quick expense with -amount
-    if msg.startswith("-"):
-        try:
-            amount = float(msg)
-            user["current_balance"] += amount  # amount is negative
-            user["expenses"].append({"amount": abs(amount), "desc": "Quick entry", "date": now.isoformat()})
-            response.message(f"💸 Quick expense: ${abs(amount):.2f} recorded. Remaining: ${user['current_balance']:.2f}")
-            save_data()
-            return str(response)
-        except:
-            response.message("❌ Couldn't process the amount. Use -100 to log an expense.")
-            save_data()
-            return str(response)
-
     if user["last_topup"] is None or now.month != datetime.fromisoformat(user["last_topup"]).month:
         user["current_balance"] += user["topup_amount"]
         user["last_topup"] = now.isoformat()
@@ -91,7 +76,7 @@ def bot():
             f"🔁 Top-up: ${user['topup_amount']:.2f}"
         )
     else:
-        response.message("Available commands:\n/setbudget 1000\n/addexpense 50 food\n/topup 800\n/status\n/clear\n/history 7\nOr just send: -100 to log an expense\n/setbudget 1000\n/addexpense 50 food\n/topup 800\n/status")
+        response.message("Available commands:\n/setbudget 1000\n/addexpense 50 food\n/topup 800\n/status")
 
     save_data()
     return str(response)

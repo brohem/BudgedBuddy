@@ -145,18 +145,18 @@ def bot():
 
         else:
             response.message(
-                "📘 *BudgetBuddy Help Guide*/n"
-                "Commands:/n"
-                "- setbudget 1000 → Set your starting monthly budget/n"
-                "- topup 800 → Set the monthly top-up amount/n"
-                "- addexpense 50 groceries → Add an expense with description/n"
-                "- -120 rent → Quick expense entry with minus/n"
-                "- history 5 → Show expenses from the last 5 days/n"
-                "- status → Show your current budget status/n"
-                "- clear → Reset all your budget data/n"
-                "- share +1234567890 → Invite someone to share your budget/n"
-                "- accept → Accept an invitation to join a shared budget/n"
-                "- help → Show this help message/n"
+                "📘 *BudgetBuddy Help Guide*\n"
+                "Commands:\n"
+                "- setbudget 1000 → Set your starting monthly budget\n"
+                "- topup 800 → Set the monthly top-up amount\n"
+                "- addexpense 50 groceries → Add an expense with description\n"
+                "- -120 rent → Quick expense entry with minus\n"
+                "- history 5 → Show expenses from the last 5 days\n"
+                "- status → Show your current budget status\n"
+                "- clear → Reset all your budget data\n"
+                "- share +1234567890 → Invite someone to share your budget\n"
+                "- accept → Accept an invitation to join a shared budget\n"
+                "- help → Show this help message\n"
             )
 
     except Exception as e:

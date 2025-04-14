@@ -127,34 +127,56 @@ def bot():
             parts = msg.split()
             if len(parts) != 2 or not parts[1].startswith("+"):
                 response.message("❌ Usage: share +1234567890")
-    
-        else:
-            response.message(
-                "📘 *BudgetBuddy Help Guide*
-"
-                "Commands:
-"
-                "- setbudget 1000         → Set your starting monthly budget
-"
-                "- topup 800              → Set the monthly top-up amount
-"
-                "- addexpense 50 groceries→ Add an expense with description
-"
-                "- -120 rent              → Quick expense entry with minus
-"
-                "- history 5              → Show expenses from the last 5 days
-"
-                "- status                 → Show your current budget status
-"
-                "- clear                  → Reset all your budget data
-"
-                "- share +1234567890      → Invite someone to share your budget
-"
-                "- accept                 → Accept an invitation to join a shared budget
-"
-                "- help                   → Show this help message"
-            )
+            else:
+                invitee = f"whatsapp:{parts[1]}"
+                user.setdefault("invited", []).append(invitee)
+                response.message(f"💌 Invitation sent to {invitee}. Ask them to reply with /accept to join your budget.")
 
+        elif msg.startswith("accept"):
+            found = False
+            for uid, data in users.items():
+                if isinstance(data, dict) and 'invited' in data and user_id in data['invited']:
+                    data['members'].append(user_id)
+                    data['invited'].remove(user_id)
+                    users[user_id] = data
+                    found = True
+                    response.message("✅ You’ve joined a shared budget.")
+                    break
+            if not found:
+                response.message("❌ No active invitations found.")
+
+        elif msg.startswith("clear"):
+            users[user_id] = {
+                "monthly_allocation": 0,
+                "current_balance": 0,
+                "topup_amount": 0,
+                "last_topup": None,
+                "expenses": []
+            }
+            response.message("🧹 All your budget data has been cleared.")
+
+        elif msg.startswith("history"):
+            parts = msg.split()
+            days = int(parts[1]) if len(parts) > 1 else 7
+            cutoff = (now - timedelta(days=days)).isoformat()
+            history = [e for e in user["expenses"] if e["date"] >= cutoff]
+            if history:
+                lines = [f"{e['date']}: ${e['amount']:.2f} - {e['desc']}" for e in history]
+                response.message("📜 Expense History:\n" + "\n".join(lines))
+            else:
+                response.message("📭 No expenses recorded in the selected period.")
+
+        elif msg in ["hi budgetbuddy", "hello budgetbuddy", "hi"]:
+            response.message(
+                "BudgetBuddy: A Personal Finance Tool for Everyone\n"
+                "👋 Welcome! I’d love to introduce you to BudgetBuddy — a simple, free, and private WhatsApp-based assistant designed to help people manage their money better.\n\n"
+                "💡 What is BudgetBuddy?\n"
+                "- Set a monthly budget 💰\n"
+                "- Log daily expenses 💸\n"
+                "- Track your remaining funds in real-time 📊\n"
+                "- Stay financially aware and in control — without apps or spreadsheets\n\n"
+                "🙌 100% free. No data collection. No ads. Just helpful."
+            )
 
         elif msg.startswith("status"):
             response.message(

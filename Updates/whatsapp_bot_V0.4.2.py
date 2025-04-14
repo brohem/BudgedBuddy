@@ -1,4 +1,4 @@
-# Version: 0.4.0
+# Version: 0.4.2
 
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse

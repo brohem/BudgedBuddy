@@ -138,9 +138,9 @@ def bot():
 
         elif msg.startswith("status"):
             response.message(
-                f"💼 Budget: ${user['monthly_allocation']:.2f}"
-                f"💰 Current Balance: ${user['current_balance']:.2f}"
-                f"🔁 Top-up: ${user['topup_amount']:.2f}"
+                f"💼 Budget: ${user['monthly_allocation']:.2f}\n"
+                f"💰 Current Balance: ${user['current_balance']:.2f}\n"
+                f"🔁 Top-up: ${user['topup_amount']:.2f}\n"
             )
 
         else:

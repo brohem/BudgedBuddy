@@ -1,13 +1,20 @@
-# Version: 0.4.4
+# Version: 0.4.6
 
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 from datetime import datetime, timedelta
 import json
 import os
+import errno
+
+# Ensure data directory exists
+data_dir = os.path.join(os.path.dirname(__file__), "data")
+os.makedirs(data_dir, exist_ok=True)
+
 
 app = Flask(__name__)
-data_file = "data.json"
+data_file = os.path.join("/persistent", "data.json")
+
 
 # Load or initialize data
 if os.path.exists(data_file):

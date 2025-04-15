@@ -1,4 +1,4 @@
-# Version: 0.4.6
+# Version: 0.4.7
 
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
@@ -43,12 +43,14 @@ def ensure_user_structure(user_id, phone_number):
             "current_balance": 0,
             "topup_amount": 0,
             "last_topup": None,
-            "expenses": []
+            "expenses": [],
+            "last_action": None
         }
     elif phone_number not in users[user_id].get("members", []):
         users[user_id]["members"].append(phone_number)
 
 def add_expense(user, amount, description, now):
+    user["last_action"] = {"amount": amount, "desc": description, "date": now.isoformat(), "type": "expense"}
     user["current_balance"] -= amount
     user["expenses"].append({
         "amount": amount,
@@ -57,6 +59,7 @@ def add_expense(user, amount, description, now):
     })
 
 def add_quick_expense(user, amount, description, now):
+    user["last_action"] = {"amount": abs(amount), "desc": description, "date": now.isoformat(), "type": "expense"}
     user["current_balance"] += amount  # amount is negative
     user["expenses"].append({
         "amount": abs(amount),
@@ -93,6 +96,7 @@ def bot():
             amount = float(parts[0])
             description = " ".join(parts[1:]) if len(parts) > 1 else "Quick entry"
             add_quick_expense(user, amount, description, now)
+            user["last_action"] = {"amount": abs(amount), "desc": description, "date": now.isoformat(), "type": "expense"}
             response.message(f"💸 {description} - ${abs(amount):.2f} added. Remaining: ${user['current_balance']:.2f}")
             check_negative_balance(user, response)
             save_data()
@@ -111,6 +115,7 @@ def bot():
             amount = float(parts[1])
             description = " ".join(parts[2:])
             add_expense(user, amount, description, now)
+            user["last_action"] = {"amount": amount, "desc": description, "date": now.isoformat(), "type": "expense"}
             response.message(f"💸 {description} - ${amount:.2f} added. Remaining: ${user['current_balance']:.2f}")
             check_negative_balance(user, response)
 
@@ -143,6 +148,30 @@ def bot():
             else:
                 response.message("❌ No invitation found. Ask someone to share with you first.")
 
+        
+        elif msg.startswith("undo"):
+            last = user.get("last_action")
+            if last and last["type"] == "expense":
+                for i in range(len(user["expenses"]) - 1, -1, -1):
+                    e = user["expenses"][i]
+                    if (
+                        abs(e["amount"] - last["amount"]) < 0.01 and
+                        e["desc"] == last["desc"] and
+                        e["date"] == last["date"]
+                    ):
+                        del user["expenses"][i]
+                        user["current_balance"] += last["amount"]
+                        user["last_action"] = None
+                        response.message(
+                            f"↩️ Last expense '{e['desc']}' for ${e['amount']:.2f} has been removed. "
+                            f"Updated balance: ${user['current_balance']:.2f}"
+                        )
+                        break
+                else:
+                    response.message("⚠️ Could not find the last expense to undo.")
+            else:
+                response.message("⚠️ No recent expense found to undo.")
+
         elif msg.startswith("status"):
             response.message(
                 f"💼 Budget: ${user['monthly_allocation']:.2f}\n"
@@ -163,7 +192,7 @@ def bot():
                 "- clear → Reset all your budget data\n"
                 "- share +1234567890 → Invite someone to share your budget\n"
                 "- accept → Accept an invitation to join a shared budget\n"
-                "- help → Show this help message\n"
+                "- undo → Remove your last expense entry\n- help → Show this help message\n"
             )
 
     except Exception as e:

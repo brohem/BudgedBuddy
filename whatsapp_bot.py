@@ -1,4 +1,4 @@
-# Version: 0.4.7
+# Version: 0.4.8
 
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
@@ -149,6 +149,19 @@ def bot():
                 response.message("❌ No invitation found. Ask someone to share with you first.")
 
         
+        
+        elif msg.startswith("clear"):
+            users[user_id] = {
+                "members": [raw_user_id],
+                "monthly_allocation": 0,
+                "current_balance": 0,
+                "topup_amount": 0,
+                "last_topup": None,
+                "expenses": [],
+                "last_action": None
+            }
+            response.message("🧹 All your budget data has been cleared.")
+
         elif msg.startswith("undo"):
             last = user.get("last_action")
             if last and last["type"] == "expense":
